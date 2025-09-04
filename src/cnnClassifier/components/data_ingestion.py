@@ -1,8 +1,13 @@
+from cnnClassifier.entity.config_entity import DataIngestionConfig
 import os 
 import urllib.request as request
 import zipfile
 from cnnClassifier import logger
 from cnnClassifier.utils.common import get_size
+from pathlib import Path
+
+
+
 
 
 class DataIngestion:
