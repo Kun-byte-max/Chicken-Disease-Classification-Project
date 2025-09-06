@@ -9,34 +9,44 @@ from box import ConfigBox
 from pathlib import Path
 from typing import Any
 import base64
+import logging
+
+logger = logging.getLogger(__name__)
 
 @ensure_annotations
 def read_yaml(path_to_yaml: Path) -> ConfigBox:
-    """reads yaml file and returns
+    """Reads YAML file and returns ConfigBox object
 
     Args:
-        path_to_yaml (str): path like input
+        path_to_yaml (Path): Path to YAML file
 
     Raises:
-        ValueError: if yaml file is empty
-        e: empty file
+        ValueError: If yaml file is empty or invalid
+        Exception: Other unexpected errors
 
     Returns:
-        ConfigBox: ConfigBox type
-    
+        ConfigBox: Parsed YAML as ConfigBox
     """
-
     try:
-        with open(path_to_yaml) as yaml_file:
+        abs_path = Path(path_to_yaml).resolve()
+        logger.debug(f"Reading YAML from: {abs_path}")
+        logger.info(f"Attempting to load YAML from {abs_path}")
+
+        if not abs_path.exists():
+            raise FileNotFoundError(f"YAML file not found at {abs_path}")
+
+        with open(abs_path, "r", encoding="utf-8") as yaml_file:
             content = yaml.safe_load(yaml_file)
-            logger.info(f"yaml file: {path_to_yaml} loaded successfully")
+            if content is None:
+                raise ValueError("YAML file is empty")
+            
+            logger.info(f"YAML file {abs_path} loaded successfully")
             return ConfigBox(content)
-        
+
     except BoxValueError:
-        raise ValueError("yaml file is empty")
+        raise ValueError("YAML file is empty or not properly structured")
     except Exception as e:
         raise e
-    
 
 
 @ensure_annotations

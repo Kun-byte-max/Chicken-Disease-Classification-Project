@@ -7,7 +7,7 @@ try:
     logger.info(f" >>>>>>> stage {STAGE_NAME} started <<<<<")
     data_ingestion = DataIngestionTrainingPipeline()
     data_ingestion.main()
-    logger.info(f">>>>>> stage {STAGE_NAME} compeleted <<<<<<<<\n\nx=========x")
+    logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<<<\n\nx=========x")
 except Exception as e:
     logger.exception(e)
     raise e
@@ -17,9 +17,9 @@ STAGE_NAME = "Prepare Base Model"
 try:
     logger.info(f"******************")
     logger.info(f" >>>>>>> stage {STAGE_NAME} started <<<<<")
-    data_ingestion = PrepareBaseModelTrainingPipeline()
-    data_ingestion.main()
-    logger.info(f">>>>>> stage {STAGE_NAME} compeleted <<<<<<<<\n\nx=========x")
+    prepare_base_model = PrepareBaseModelTrainingPipeline()  # Fixed variable name
+    prepare_base_model.main()
+    logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<<<\n\nx=========x")  # Fixed typo
 except Exception as e:
     logger.exception(e)
     raise e
