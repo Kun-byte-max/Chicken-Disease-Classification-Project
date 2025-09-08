@@ -4,8 +4,12 @@ from cnnClassifier.utils.common import read_yaml, create_directories
 from cnnClassifier.utils.common import get_size
 from cnnClassifier.entity.config_entity import (DataIngestionConfig,
                                                 PrepareBaseModelConfig,
-                                                PrepareCallbacksConfig)
+                                                PrepareCallbacksConfig,
+                                                TrainingConfig)
 from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+print("[DEBUG] Root Dir is:", ROOT_DIR)
 
 class ConfigurationManager:
     def __init__(
@@ -15,13 +19,21 @@ class ConfigurationManager:
                         
         self.config = read_yaml(config_filepath)
         self.params = read_yaml(params_filepath)
+        # Go up 3 levels: config/configuration.py → cnnClassifier/config → src → project root
+        self.root_dir = Path(__file__).resolve().parents[3]
 
+        self.config.artifacts_root = self.root_dir / self.config.artifacts_root
         create_directories([self.config.artifacts_root])
 
+        print("[DEBUG] Root Dir is:", self.root_dir)
 
 
     def get_data_ingestion_config(self) -> DataIngestionConfig:
         config = self.config.data_ingestion
+
+        root_dir = self.root_dir / config.root_dir
+        local_data_file = self.root_dir / config.local_data_file
+        unzip_dir = self.root_dir / config.unzip_dir
 
         create_directories([config.root_dir])
 
@@ -37,6 +49,9 @@ class ConfigurationManager:
 
     def get_prepare_base_model_config(self) -> PrepareBaseModelConfig:
         config = self.config.prepare_base_model
+        root_dir = self.root_dir / config.root_dir
+        base_model_path = self.root_dir / config.base_model_path
+        updated_base_model_path = self.root_dir / config.updated_base_model_path
 
         create_directories([config.root_dir])
 
@@ -56,6 +71,10 @@ class ConfigurationManager:
 
     def get_prepare_callback_config(self) -> PrepareCallbacksConfig:
         config = self.config.prepare_callbacks
+        root_dir = self.root_dir / config.root_dir
+        tensorboard_root_log_dir = self.root_dir / config.tensorboard_root_log_dir
+        checkpoint_model_filepath = self.root_dir / config.checkpoint_model_filepath
+
         model_ckpt_dir = os.path.dirname(config.checkpoint_model_filepath)
         create_directories([
             Path(model_ckpt_dir),
@@ -70,6 +89,33 @@ class ConfigurationManager:
         )
 
         return prepare_callback_config
+    
+    def get_training_config(self) -> TrainingConfig:
+        training = self.config.training
+        prepare_base_model = self.config.prepare_base_model
+        params = self.params
+
+        root_dir = self.root_dir / training.root_dir
+        trained_model_path = self.root_dir / training.trained_model_path
+        updated_base_model_path = self.root_dir / prepare_base_model.updated_base_model_path
+
+        # Training data absolute path
+        training_data = self.root_dir / self.config.data_ingestion.unzip_dir / "Chicken-fecal-images"
+
+        create_directories([root_dir])
+
+        return TrainingConfig(
+            root_dir=root_dir,
+            trained_model_path=trained_model_path,
+            updated_base_model_path=updated_base_model_path,
+            training_data=training_data,
+            params_epochs=params.EPOCHS,
+            params_batch_size=params.BATCH_SIZE,
+            params_is_augmentation=params.AUGMENTATION,
+            params_image_size=params.IMAGE_SIZE,
+            params_learning_rate=params.LEARNING_RATE
+        )
+
 
     
     
