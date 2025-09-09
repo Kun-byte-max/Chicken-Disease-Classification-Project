@@ -5,7 +5,8 @@ from cnnClassifier.utils.common import get_size
 from cnnClassifier.entity.config_entity import (DataIngestionConfig,
                                                 PrepareBaseModelConfig,
                                                 PrepareCallbacksConfig,
-                                                TrainingConfig)
+                                                TrainingConfig,
+                                                EvaluationConfig)
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -115,6 +116,16 @@ class ConfigurationManager:
             params_image_size=params.IMAGE_SIZE,
             params_learning_rate=params.LEARNING_RATE
         )
+    
+    def get_validation_config(self) -> EvaluationConfig:
+        eval_config = EvaluationConfig(
+            path_of_model="artifacts/training/model.h5",
+            training_data="artifacts/data_ingestion/Chicken-fecal-images",
+            all_params=self.params,
+            params_image_size=self.params.IMAGE_SIZE,
+            params_batch_size=self.params.BATCH_SIZE        
+        )
+        return eval_config
 
 
     
